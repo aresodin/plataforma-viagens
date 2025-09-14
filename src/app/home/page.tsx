@@ -1,13 +1,18 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { supabase } from '../../lib/supabaseClient';
 
 export default function HomePage() {
   const router = useRouter();
 
-  const handleLogout = () => {
-    // For now, just redirect to the login page.
-    // In the future, we'll add Supabase logout logic here.
-    router.push('/login');
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error logging out:', error);
+      // Optionally, show an error message to the user
+    } else {
+      router.push('/login');
+    }
   };
 
   return (

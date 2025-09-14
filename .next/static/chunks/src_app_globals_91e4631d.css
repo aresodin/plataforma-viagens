@@ -578,6 +578,10 @@
     display: none;
   }
 
+  .table {
+    display: table;
+  }
+
   .h-10 {
     height: calc(var(--spacing) * 10);
   }
