@@ -1,102 +1,144 @@
-import Image from "next/image";
 
-export default function Home() {
+import Link from 'next/link';
+
+export default function LandingPage() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="bg-white text-gray-800">
+      {/* Header */}
+      <header className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center">
+        <div className="flex items-center">
+          <img src="/imgs/travel_1000dp_FFF_FILL0_wght400_GRAD0_opsz48.svg" alt="Jacarelli Logo" className="h-10 w-10 mr-2" />
+          <h1 className="text-2xl font-bold text-white">Jacarelli</h1>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+        <nav>
+          <Link href="/login" className="text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 hover:bg-white hover:text-[#3ECF8E]">
+            Login
+          </Link>
+        </nav>
+      </header>
+
+      {/* Hero Section */}
+      <section 
+        className="relative h-screen bg-cover bg-center flex items-center justify-center text-center" 
+        style={{ backgroundImage: "url('https://source.unsplash.com/random/1600x900?brazil,nature')" }}
+      >
+        <div className="absolute inset-0 bg-black opacity-50"></div>
+        <div className="relative z-10">
+          <h2 className="text-5xl font-extrabold text-white mb-4">Descubra o Brasil com a Jacarelli</h2>
+          <p className="text-xl text-white mb-8">Sua próxima grande aventura começa aqui. Descubra os tesouros do Brasil com ofertas imperdíveis.</p>
+          <Link href="/destinos" className="bg-[#3ECF8E] text-white font-bold py-3 px-8 rounded-full text-lg transition-transform duration-300 hover:scale-105">
+            Encontre seu Destino
+          </Link>
+        </div>
+      </section>
+
+      {/* Destinos Populares Section */}
+      <section className="py-20 px-4">
+        <h3 className="text-4xl font-bold text-center mb-12">Destinos Incríveis no Brasil</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          {/* Destination Card 1 */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
+            <img src="https://source.unsplash.com/random/800x600?rio-de-janeiro" alt="Rio de Janeiro" className="w-full h-56 object-cover" />
+            <div className="p-6">
+              <h4 className="text-2xl font-bold mb-2">Rio de Janeiro</h4>
+              <p className="text-gray-600">Cidade maravilhosa, cheia de encantos mil. Praias, montanhas e um povo contagiante.</p>
+            </div>
+          </div>
+          {/* Destination Card 2 */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
+            <img src="https://source.unsplash.com/random/800x600?salvador,bahia" alt="Salvador" className="w-full h-56 object-cover" />
+            <div className="p-6">
+              <h4 className="text-2xl font-bold mb-2">Salvador</h4>
+              <p className="text-gray-600">O coração do Brasil, onde a cultura, a música e a história se encontram em cada esquina.</p>
+            </div>
+          </div>
+          {/* Destination Card 3 */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
+            <img src="https://source.unsplash.com/random/800x600?amazon,rainforest" alt="Amazônia" className="w-full h-56 object-cover" />
+            <div className="p-6">
+              <h4 className="text-2xl font-bold mb-2">Amazônia</h4>
+              <p className="text-gray-600">A maior floresta tropical do mundo. Uma imersão na natureza selvagem e exuberante.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Serviços Section */}
+      <section className="bg-gray-100 py-20 px-4">
+        <h3 className="text-4xl font-bold text-center mb-12">Nossos Serviços</h3>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 max-w-6xl mx-auto text-center">
+          <div className="p-6">
+            <span className="material-symbols-outlined text-5xl text-[#3ECF8E] mb-4">flight</span>
+            <h4 className="text-xl font-bold mb-2">Passagens Aéreas</h4>
+            <p className="text-gray-600">As melhores tarifas para você voar para os principais destinos do Brasil.</p>
+          </div>
+          <div className="p-6">
+            <span className="material-symbols-outlined text-5xl text-[#3ECF8E] mb-4">hotel</span>
+            <h4 className="text-xl font-bold mb-2">Hotéis</h4>
+            <p className="text-gray-600">Uma vasta seleção de hotéis para todos os estilos e orçamentos.</p>
+          </div>
+           <div className="p-6">
+            <span className="material-symbols-outlined text-5xl text-[#3ECF8E] mb-4">directions_bus</span>
+            <h4 className="text-xl font-bold mb-2">Passagens de Ônibus</h4>
+            <p className="text-gray-600">Viaje por terra com conforto e segurança, explorando cada canto do país.</p>
+          </div>
+          <div className="p-6">
+            <span className="material-symbols-outlined text-5xl text-[#3ECF8E] mb-4">support_agent</span>
+            <h4 className="text-xl font-bold mb-2">Suporte 24/7</h4>
+            <p className="text-gray-600">Nossa equipe está sempre pronta para te ajudar, a qualquer hora.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="py-20 px-4 text-center">
+        <h3 className="text-4xl font-bold mb-4">Fique por Dentro das Novidades</h3>
+        <p className="text-lg text-gray-600 mb-8">Assine nossa newsletter para receber as melhores ofertas e dicas de viagem.</p>
+        <form className="max-w-md mx-auto flex">
+          <input 
+            type="email" 
+            placeholder="Seu e-mail" 
+            className="w-full p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#3ECF8E]" 
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+          <button type="submit" className="bg-[#3ECF8E] text-white font-bold py-3 px-6 rounded-r-lg transition-colors duration-300 hover:bg-[#35b47c]">
+            Assinar
+          </button>
+        </form>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12 px-4">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+          <div>
+            <h4 className="text-xl font-bold mb-4">Jacarelli</h4>
+            <p className="text-gray-400">Sua jornada dos sonhos começa aqui. Nós cuidamos de tudo para você.</p>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold mb-4">Links Úteis</h4>
+            <ul>
+              <li className="mb-2"><Link href="/sobre" className="hover:text-[#3ECF8E]">Sobre Nós</Link></li>
+              <li className="mb-2"><Link href="/contato" className="hover:text-[#3ECF8E]">Contato</Link></li>
+              <li className="mb-2"><Link href="/privacidade" className="hover:text-[#3ECF8E]">Política de Privacidade</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="text-xl font-bold mb-4">Siga-nos</h4>
+            <div className="flex justify-center md:justify-start space-x-4">
+              <a href="#" className="text-gray-400 hover:text-[#3ECF8E]">
+                <span className="material-symbols-outlined">facebook</span>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-[#3ECF8E]">
+                <span className="material-symbols-outlined">alternate_email</span>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-[#3ECF8E]">
+                <span className="material-symbols-outlined">chat</span>
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="mt-8 border-t border-gray-800 pt-8 text-center text-gray-500">
+          <p>&copy; 2025 Jacarelli. Todos os direitos reservados.</p>
+        </div>
       </footer>
     </div>
   );
