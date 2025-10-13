@@ -1,0 +1,35 @@
+{
+  "node": {
+    "0019b974b6cf46e725928bea2998c35e9bbb6c7a8a": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/admin/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getUsers",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "action-browser"
+      },
+      "exportedName": "getUsers",
+      "filename": "src/app/admin/actions.ts"
+    },
+    "60fa609c4b2fc434374811bf3532cb1f23e24f423e": {
+      "workers": {
+        "app/admin/page": {
+          "moduleId": "[project]/.next-internal/server/app/admin/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/admin/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "updateUserRole",
+          "filename": "src/app/admin/actions.ts"
+        }
+      },
+      "layer": {
+        "app/admin/page": "action-browser"
+      },
+      "exportedName": "updateUserRole",
+      "filename": "src/app/admin/actions.ts"
+    }
+  },
+  "edge": {}
+}

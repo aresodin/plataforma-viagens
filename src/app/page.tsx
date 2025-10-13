@@ -1,5 +1,6 @@
 
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function LandingPage() {
   return (
@@ -7,7 +8,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="absolute top-0 left-0 w-full z-10 p-4 flex justify-between items-center">
         <div className="flex items-center">
-          <img src="/imgs/travel_1000dp_FFF_FILL0_wght400_GRAD0_opsz48.svg" alt="Jacarelli Logo" className="h-10 w-10 mr-2" />
+          <Image src="/imgs/travel_1000dp_FFF_FILL0_wght400_GRAD0_opsz48.svg" alt="Jacarelli Logo" width={40} height={40} className="h-10 w-10 mr-2" />
           <h1 className="text-2xl font-bold text-white">Jacarelli</h1>
         </div>
         <nav>
@@ -20,8 +21,14 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section 
         className="relative h-screen bg-cover bg-center flex items-center justify-center text-center" 
-        style={{ backgroundImage: "url('https://source.unsplash.com/random/1600x900?brazil,nature')" }}
       >
+        <Image 
+          src="/imgs/capa_inicial.jpg"
+          alt="Capa Inicial"
+          layout="fill"
+          objectFit="cover"
+          className="absolute inset-0"
+        />
         <div className="absolute inset-0 bg-black opacity-50"></div>
         <div className="relative z-10">
           <h2 className="text-5xl font-extrabold text-white mb-4">Descubra o Brasil com a Jacarelli</h2>
@@ -38,7 +45,7 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {/* Destination Card 1 */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
-            <img src="https://source.unsplash.com/random/800x600?rio-de-janeiro" alt="Rio de Janeiro" className="w-full h-56 object-cover" />
+            <Image src="/imgs/rio_de_janeiro.jpg" alt="Rio de Janeiro" width={800} height={600} className="w-full h-56 object-cover" />
             <div className="p-6">
               <h4 className="text-2xl font-bold mb-2">Rio de Janeiro</h4>
               <p className="text-gray-600">Cidade maravilhosa, cheia de encantos mil. Praias, montanhas e um povo contagiante.</p>
@@ -46,7 +53,7 @@ export default function LandingPage() {
           </div>
           {/* Destination Card 2 */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
-            <img src="https://source.unsplash.com/random/800x600?salvador,bahia" alt="Salvador" className="w-full h-56 object-cover" />
+            <Image src="/imgs/salvador.jpg" alt="Salvador" width={800} height={600} className="w-full h-56 object-cover" />
             <div className="p-6">
               <h4 className="text-2xl font-bold mb-2">Salvador</h4>
               <p className="text-gray-600">O coração do Brasil, onde a cultura, a música e a história se encontram em cada esquina.</p>
@@ -54,7 +61,7 @@ export default function LandingPage() {
           </div>
           {/* Destination Card 3 */}
           <div className="bg-white rounded-lg shadow-lg overflow-hidden transform transition-transform duration-300 hover:-translate-y-2">
-            <img src="https://source.unsplash.com/random/800x600?amazon,rainforest" alt="Amazônia" className="w-full h-56 object-cover" />
+            <Image src="/imgs/amazonia.jpg" alt="Amazônia" width={800} height={600} className="w-full h-56 object-cover" />
             <div className="p-6">
               <h4 className="text-2xl font-bold mb-2">Amazônia</h4>
               <p className="text-gray-600">A maior floresta tropical do mundo. Uma imersão na natureza selvagem e exuberante.</p>
