@@ -5,7 +5,10 @@ import { useEffect, useState, ReactNode } from 'react';
 import { getPublicPackages } from '../packages/actions';
 import Link from 'next/link';
 import Image from 'next/image';
-import PackageImage from '../../components/PackageImage';
+// O componente PackageImage não é mais necessário nesta página, pois usaremos apenas imagens locais.
+// import PackageImage from '../../components/PackageImage';
+
+import capaInicialImg from '../../../public/imgs/capa_inicial.jpg';
 
 // --- Tipagens ---
 type Package = { id: string; [key: string]: any; };
@@ -31,7 +34,15 @@ const PackageHighlightCard = ({ pkg, index }: { pkg: Package; index: number }) =
     <Link href={`/packages/${pkg.id}`} className="block group rounded-xl transform hover:-translate-y-2 transition-all duration-300 will-change-transform">
       <div className="bg-white h-full flex flex-col rounded-xl shadow-lg">
         <div className="relative h-56 rounded-t-xl overflow-hidden">
-          <PackageImage fill sizes="(max-width: 768px) 100vw, 33vw" src={pkg.imagem_url} fallbackSrc={localImagePaths[index % localImagePaths.length]} alt={`Viagem para ${pkg.destino}`} className="object-cover group-hover:scale-110 transition-transform duration-500" />
+          {/* CORREÇÃO DEFINITIVA: Usando o componente <Image> padrão do Next.js e ignorando a URL do banco.
+              A imagem é selecionada do array localImagePaths. */}
+          <Image 
+            fill 
+            sizes="(max-width: 768px) 100vw, 33vw" 
+            src={localImagePaths[index % localImagePaths.length]} 
+            alt={`Viagem para ${pkg.destino}`} 
+            className="object-cover group-hover:scale-110 transition-transform duration-500" 
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
           <div className="absolute bottom-4 left-4">
             <h3 className="text-2xl font-bold text-white">{pkg.destino}</h3>
@@ -86,13 +97,13 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-50 text-gray-800">
       <div className="relative h-96 text-white">
-        {/* CORREÇÃO: Removendo as props legadas 'layout' e 'objectFit' e usando 'fill' e 'className' */}
         <Image 
           fill
-          src="/imgs/capa_inicial.jpg" 
-          alt="Paisagem de Viagem" 
+          src={capaInicialImg}
+          alt="Paisagem de Viagem"
+          placeholder='blur'
           className="object-cover brightness-50"
-          priority // Imagem de destaque, deve carregar primeiro
+          priority
         />
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center p-4">
           <h1 className="text-5xl md:text-7xl font-extrabold shadow-2xl">Sua Aventura Começa Aqui!</h1>

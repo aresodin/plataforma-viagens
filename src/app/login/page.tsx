@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // Importe o useRouter
 import { supabase } from '../../lib/supabaseClient';
 import Link from 'next/link';
 
@@ -7,6 +8,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const router = useRouter(); // Instancie o router
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,8 +21,8 @@ export default function LoginPage() {
       setError('Erro: ' + error.message);
     } else if (data.user) {
       setError('');
-      // Redirect to home on successful login
-      window.location.href = '/home';
+      // Use router.push para um redirecionamento suave
+      router.push('/home');
     }
   };
 

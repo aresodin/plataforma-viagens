@@ -8,7 +8,7 @@ R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_forbidde
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_unauthorized_15817684.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_builtin_global-error_ece394eb.js")
 R.c("server/chunks/ssr/node_modules_@supabase_node-fetch_lib_index_b500a2e1.js")
-R.c("server/chunks/ssr/node_modules_next_9cd0029c._.js")
+R.c("server/chunks/ssr/node_modules_next_6f0cb73e._.js")
 R.c("server/chunks/ssr/node_modules_tr46_742a71cf._.js")
 R.c("server/chunks/ssr/node_modules_@supabase_auth-js_dist_module_d6091440._.js")
 R.c("server/chunks/ssr/node_modules_65421cbd._.js")

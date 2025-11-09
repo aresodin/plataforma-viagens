@@ -2,7 +2,6 @@ import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
 
 import FallbackImage from '../../../public/imgs/rio_de_janeiro.jpg';
 
@@ -11,21 +10,11 @@ async function getMyTrips() {
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
   const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    // Se não houver sessão, não podemos buscar as viagens
-    return [];
-  }
+  if (!session) return [];
 
   const { data: reservations, error } = await supabase
     .from('reservas')
-    .select(`
-      id,
-      quantidade_passagens,
-      valor_total,
-      criado_em,
-      viagens (*)
-    `)
+    .select(`id, quantidade_passagens, valor_total, criado_em, viagens (*)`)
     .eq('usuario_id', session.user.id)
     .eq('status', 'confirmada')
     .order('criado_em', { ascending: false });
@@ -35,7 +24,23 @@ async function getMyTrips() {
     return [];
   }
 
-  return reservations;
+  // Lógica de URL corrigida e mais inteligente
+  const tripsWithImageUrls = reservations.map(trip => {
+    if (trip.viagens && trip.viagens.imagem_url) {
+      const imageUrl = trip.viagens.imagem_url;
+      // Verifica se a URL já é um link completo. Se for, usa diretamente.
+      if (imageUrl.startsWith('http')) {
+        trip.viagens.imagem_url = imageUrl;
+      } else {
+        // Se não for um link, constrói a URL a partir do Supabase Storage.
+        const { data } = supabase.storage.from('packages').getPublicUrl(imageUrl);
+        trip.viagens.imagem_url = data.publicUrl;
+      }
+    }
+    return trip;
+  });
+
+  return tripsWithImageUrls;
 }
 
 const formatDate = (dateString: string) => {
@@ -46,17 +51,10 @@ const formatDate = (dateString: string) => {
 
 export default async function MyTripsPage() {
   const trips = await getMyTrips();
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-  const { data: { session } } = await supabase.auth.getSession();
-
-  if (!session) {
-    redirect('/login');
-  }
 
   return (
     <div className="min-h-screen bg-slate-100">
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+        <header className="bg-white shadow-sm sticky top-0 z-40">
         <nav className="container mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/home" className="flex items-center gap-3">
             <img src="/imgs/travel_1000dp_FFF_FILL0_wght400_GRAD0_opsz48.svg" alt="Jacarelli Viagens Logo" className="h-8 w-8 bg-green-500 rounded-full p-1" />
@@ -81,25 +79,26 @@ export default async function MyTripsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3">
                   <div className="md:col-span-1 relative h-48 md:h-full">
                      <Image 
-                        src={trip.viagens.imagem_url || FallbackImage}
-                        alt={`Viagem para ${trip.viagens.destino}`}
+                        src={trip.viagens?.imagem_url || FallbackImage}
+                        alt={`Viagem para ${trip.viagens?.destino}`}
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 33vw"
+                        priority={true}
                      />
                   </div>
                   <div className="md:col-span-2 p-6">
-                    <h2 className="text-2xl font-bold text-gray-800 mb-2">{trip.viagens.destino}</h2>
-                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-600 mb-4">
-                      <span className="font-medium">Saindo de: {trip.viagens.origem}</span>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">{trip.viagens?.destino}</h2>
+                    <div className="flex flex-wrap gap-x-4 gap-y-2 text-gray-700 mb-4">
+                      <span className="font-medium">Saindo de: {trip.viagens?.origem}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm mb-4">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-gray-700">
                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>
                            <span className="font-semibold">Ida: {formatDate(trip.viagens.data_ida)}</span>
                         </div>
-                        {trip.viagens.data_volta && 
-                          <div className="flex items-center gap-2">
+                        {trip.viagens?.data_volta && 
+                          <div className="flex items-center gap-2 text-gray-700">
                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>
                              <span className="font-semibold">Volta: {formatDate(trip.viagens.data_volta)}</span>
                           </div>

@@ -71,6 +71,8 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 ;
 ;
+// --- Funções de busca de pacotes (Restauradas) ---
+// Helper para criar um cliente Supabase para acesso público (somente leitura)
 const createSupabaseClient = ()=>{
     const supabaseUrl = ("TURBOPACK compile-time value", "https://dbbibutyatofxmxxlqdi.supabase.co");
     const supabaseAnonKey = ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiYmlidXR5YXRvZnhteHhscWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3Njc0NDEsImV4cCI6MjA3MzM0MzQ0MX0.lSCs25CK8P6JxRpNTVxLUc1koOzuE_wSOtPZw9V9--U");
@@ -84,14 +86,18 @@ async function getPublicPackages() {
         const { data, error } = await supabase.from('viagens').select('*').eq('ativo', true).order('destino', {
             ascending: true
         });
-        if (error) throw error;
+        if (error) {
+            console.error("Erro ao buscar pacotes públicos:", error);
+            throw new Error("Não foi possível carregar os pacotes.");
+        }
         return {
             packages: data
         };
     } catch (error) {
-        console.error("Erro ao buscar pacotes públicos:", error);
+        console.error("Catch: Erro ao buscar pacotes públicos:", error);
+        // Retornamos um objeto com a chave `packages` como um array vazio em caso de erro.
         return {
-            error: "Não foi possível carregar os pacotes."
+            packages: []
         };
     }
 }
@@ -117,6 +123,11 @@ async function getPublicPackageById(id) {
         };
     }
 }
+// --- Função de Reserva (Corrigida) ---
+// Validação do CPF: remove caracteres não numéricos e verifica se tem 11 dígitos
+const cpfSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().transform((cpf)=>cpf.replace(/\D/g, '')).pipe(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(11, {
+    message: "CPF deve conter 11 dígitos."
+}));
 const CreateReservationSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
     packageId: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().uuid({
         message: 'ID do pacote inválido.'
@@ -126,85 +137,79 @@ const CreateReservationSchema = __TURBOPACK__imported__module__$5b$project$5d2f$
     }),
     passengers: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].array(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
         name: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(3, {
-            message: 'O nome do passageiro deve ter pelo menos 3 caracteres.'
+            message: 'O nome deve ter pelo menos 3 caracteres.'
         }),
-        cpf: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().regex(/^\d{3}\.\d{3}\.\d{3}-\d{2}$/, {
-            message: 'CPF inválido. Use o formato XXX.XXX.XXX-XX.'
-        })
+        cpf: cpfSchema
     })).min(1, {
         message: 'É necessário adicionar pelo menos um passageiro.'
     }),
-    installments: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].coerce.number().int().min(1, "Selecione o número de parcelas.").max(12),
-    'card-number': __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(16, "Número do cartão deve ter 16 dígitos."),
-    'card-name': __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(3, "O nome no cartão é obrigatório."),
-    'card-expiry': __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().regex(/^(0[1-9]|1[0-2])\/\d{2}$/, "A data de validade é inválida (MM/AA)."),
-    'card-cvv': __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().min(3, "O CVV deve ter entre 3 e 4 dígitos.").max(4),
+    installments: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].coerce.number().int().min(1).max(12),
     card_last_digits: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(4, "Os dígitos finais do cartão são inválidos.")
 });
+const getInterestRate = (installments)=>{
+    if (installments <= 3) return 0;
+    if (installments <= 6) return 0.05; // 5%
+    if (installments <= 9) return 0.07; // 7%
+    return 0.10; // 10%
+};
 async function submitReservation(prevState, formData) {
     const cookieStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cookies"])();
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$auth$2d$helpers$2d$nextjs$2f$dist$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createRouteHandlerClient"])({
         cookies: ()=>cookieStore
     });
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-        return {
-            message: 'Acesso negado. Por favor, faça login para continuar.',
-            errors: {},
-            success: false
-        };
-    }
-    const passengers = [];
-    let i = 0;
-    while(formData.has(`passengers[${i}][name]`)){
-        passengers.push({
-            name: formData.get(`passengers[${i}][name]`),
-            cpf: formData.get(`passengers[${i}][cpf]`)
-        });
-        i++;
-    }
-    const dataToValidate = {
-        packageId: formData.get('packageId'),
-        numTravelers: formData.get('numTravelers'),
-        passengers: passengers,
-        installments: formData.get('installments'),
-        'card-number': formData.get('card-number'),
-        'card-name': formData.get('card-name'),
-        'card-expiry': formData.get('card-expiry'),
-        'card-cvv': formData.get('card-cvv'),
-        card_last_digits: formData.get('card_last_digits')
-    };
-    const validatedFields = CreateReservationSchema.safeParse(dataToValidate);
-    if (!validatedFields.success) {
-        const flattenedErrors = {};
-        for (const issue of validatedFields.error.issues){
-            flattenedErrors[issue.path.join('.')] = issue.message;
-        }
-        return {
-            message: 'Falha na validação. Verifique os campos do formulário.',
-            errors: flattenedErrors,
-            success: false
-        };
-    }
-    const { packageId, numTravelers, installments, card_last_digits } = validatedFields.data;
     try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            return {
+                message: 'Acesso negado. Por favor, faça login para continuar.',
+                success: false
+            };
+        }
+        const passengers = [];
+        let i = 0;
+        while(formData.get(`passengers[${i}][name]`)){
+            passengers.push({
+                name: formData.get(`passengers[${i}][name]`),
+                cpf: formData.get(`passengers[${i}][cpf]`)
+            });
+            i++;
+        }
+        const dataToValidate = {
+            packageId: formData.get('packageId'),
+            numTravelers: formData.get('numTravelers'),
+            passengers: passengers,
+            installments: formData.get('installments'),
+            card_last_digits: formData.get('card_last_digits')
+        };
+        const validatedFields = CreateReservationSchema.safeParse(dataToValidate);
+        if (!validatedFields.success) {
+            const flattenedErrors = {};
+            for (const issue of validatedFields.error.issues){
+                flattenedErrors[issue.path.join('.')] = issue.message;
+            }
+            return {
+                message: 'Erro de validação. Verifique os campos.',
+                errors: flattenedErrors,
+                success: false
+            };
+        }
+        const { packageId, numTravelers, installments, card_last_digits } = validatedFields.data;
         const { data: travelPackage, error: packageError } = await supabase.from('viagens').select('preco, disponibilidade').eq('id', packageId).single();
         if (packageError || !travelPackage) {
             return {
                 message: "Pacote de viagem não encontrado.",
-                success: false,
-                errors: {}
+                success: false
             };
         }
         if (travelPackage.disponibilidade < numTravelers) {
             return {
                 message: `Desculpe, restam apenas ${travelPackage.disponibilidade} vagas.`,
-                success: false,
-                errors: {}
+                success: false
             };
         }
         const baseTotal = travelPackage.preco * numTravelers;
-        const finalTotal = installments > 3 ? baseTotal * 1.05 : baseTotal;
+        const interestRate = getInterestRate(installments);
+        const finalTotal = baseTotal * (1 + interestRate);
         const { data: reservation, error: reservationError } = await supabase.from('reservas').insert({
             usuario_id: user.id,
             viagem_id: packageId,
@@ -214,43 +219,52 @@ async function submitReservation(prevState, formData) {
             metodo_pagamento: 'Cartão de Crédito'
         }).select('id').single();
         if (reservationError || !reservation) {
-            throw new Error('Não foi possível criar o registro da reserva.');
+            console.error('Reservation Error:', reservationError);
+            return {
+                message: 'Falha ao criar a reserva.',
+                success: false
+            };
         }
         const { error: paymentError } = await supabase.from('pagamentos').insert({
             reserva_id: reservation.id,
             valor: finalTotal,
             metodo: `Cartão de Crédito final ${card_last_digits}`,
-            status: 'aprovado',
-            parcelas: installments
+            status: 'aprovado'
         });
         if (paymentError) {
-            throw new Error('Falha ao registrar o pagamento.');
+            console.error('Payment Error:', paymentError);
+            return {
+                message: 'Falha ao processar o pagamento.',
+                success: false
+            };
         }
         const { error: updateStatusError } = await supabase.from('reservas').update({
             status: 'confirmada'
         }).eq('id', reservation.id);
         if (updateStatusError) {
-            throw new Error('Falha ao confirmar o status da reserva.');
+            console.error('Update Status Error:', updateStatusError);
+            return {
+                message: 'Falha ao confirmar o status da reserva.',
+                success: false
+            };
         }
         const newAvailability = travelPackage.disponibilidade - numTravelers;
         const { error: updateAvailabilityError } = await supabase.from('viagens').update({
             disponibilidade: newAvailability
         }).eq('id', packageId);
         if (updateAvailabilityError) {
-            console.error(`CRÍTICO: Falha ao atualizar disponibilidade do pacote ${packageId}.`);
+            console.error(`ALERTA CRÍTICO: Falha ao atualizar disponibilidade do pacote ${packageId}. Correção manual necessária.`);
         }
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])(`/packages/${packageId}`);
         (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/my-trips');
         return {
             message: `Sua reserva para ${numTravelers} pessoa(s) foi confirmada com sucesso!`,
-            errors: {},
             success: true
         };
     } catch (e) {
-        console.error("Erro no processamento da reserva:", e.message);
+        console.error("Erro inesperado no processamento da reserva:", e);
         return {
-            message: e.message || 'Ocorreu um erro inesperado no servidor. Tente novamente.',
-            errors: {},
+            message: e.message || 'Ocorreu um erro inesperado no servidor. Tente novamente mais tarde.',
             success: false
         };
     }

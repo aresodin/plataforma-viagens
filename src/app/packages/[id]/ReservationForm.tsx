@@ -10,7 +10,8 @@ const initialState = {
   success: false,
 };
 
-const InputField = ({ id, name, placeholder, value, onChange, error, type = 'text', pattern, maxLength }) => (
+// Componente de input reutilizável
+const InputField = ({ id, name, placeholder, value, onChange, error, type = 'text', maxLength, className = '' }) => (
   <div>
     <input 
       type={type}
@@ -19,24 +20,25 @@ const InputField = ({ id, name, placeholder, value, onChange, error, type = 'tex
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      pattern={pattern}
       maxLength={maxLength}
-      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900 placeholder-gray-500"
+      className={`w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900 placeholder-gray-500 ${className}`}
       required
     />
     {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
   </div>
 );
 
+// Componente de input com ícone
 const IconInputField = ({ icon, ...props }) => (
   <div className="relative">
-    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
       {icon}
     </div>
-    <InputField {...props} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900 placeholder-gray-500" />
+    <InputField {...props} className="w-full pl-12 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition text-gray-900 placeholder-gray-500" />
   </div>
 );
 
+// Componente para inputs de passageiro
 const PassengerInput = ({ index, passenger, updatePassenger, errors }) => (
   <div className="space-y-4 pt-4 border-t border-gray-200">
      <h3 className="text-md font-semibold text-gray-800">Passageiro {index + 1}</h3>
@@ -49,14 +51,14 @@ const PassengerInput = ({ index, passenger, updatePassenger, errors }) => (
             placeholder="Nome completo"
             error={errors?.[`passengers.${index}.name`]}
         />
+        {/* CPF input sem validação de padrão no cliente */}
         <InputField 
             id={`cpf-${index}`} 
             name={`passengers[${index}][cpf]`}
             value={passenger.cpf}
             onChange={(e) => updatePassenger(index, 'cpf', e.target.value)}
-            placeholder="CPF (000.000.000-00)"
-            pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
-            maxLength="14"
+            placeholder="CPF (apenas números)"
+            maxLength="14" // Permite digitação com máscara
             error={errors?.[`passengers.${index}.cpf`]}
         />
     </div>
@@ -77,7 +79,7 @@ export default function ReservationForm({ packageId, availability, price }: { pa
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setTimeout(() => { // Aguarda o fecho da animação
+    setTimeout(() => {
       setStep(1);
       setPassengers([{ name: '', cpf: '' }]);
       setNumTravelers(1);
@@ -88,7 +90,7 @@ export default function ReservationForm({ packageId, availability, price }: { pa
 
   useEffect(() => {
     if (formState.success && isModalOpen) {
-      setStep(3); // Vai para o ecrã de sucesso
+      setStep(3);
     }
   }, [formState.success, isModalOpen]);
 
@@ -117,18 +119,30 @@ export default function ReservationForm({ packageId, availability, price }: { pa
   const goToNextStep = () => setStep(2);
   const goToPrevStep = () => setStep(1);
   
+  // Lógica de Juros Atualizada
+  const getInterestRate = (installments) => {
+    if (installments <= 3) return 0;
+    if (installments <= 6) return 0.05; // 5%
+    if (installments <= 9) return 0.07; // 7%
+    return 0.10; // 10%
+  };
+
   const baseTotal = price * numTravelers;
-  const totalWithInterest = installments > 3 ? baseTotal * 1.05 : baseTotal;
-  const installmentValue = totalWithInterest / installments;
+  const interestRate = getInterestRate(installments);
+  const totalWithInterest = baseTotal * (1 + interestRate);
 
   const renderInstallmentOptions = () => {
       const options = [];
       for (let i = 1; i <= 12; i++) {
-          const total = i > 3 ? baseTotal * 1.05 : baseTotal;
+          const currentInterest = getInterestRate(i);
+          const total = baseTotal * (1 + currentInterest);
           const value = total / i;
-          const text = i <= 3
-              ? `${i}x de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)} sem juros`
-              : `${i}x de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)} (Total: ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)})`;
+          let text = `${i}x de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value)}`;
+          if (currentInterest === 0) {
+              text += ' sem juros';
+          } else {
+              text += ` (${(currentInterest * 100).toFixed(0)}% de juros)`;
+          }
           options.push(<option key={i} value={i}>{text}</option>);
       }
       return options;
@@ -162,18 +176,18 @@ export default function ReservationForm({ packageId, availability, price }: { pa
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-green-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">Reserva Confirmada!</h2>
                 <p className="text-gray-600 leading-relaxed">{formState.message}</p>
-                <button onClick={handleCloseModal} className="mt-6 w-full py-3 px-6 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition-all">
+                <a href="/my-trips" className="mt-6 block w-full text-center py-3 px-6 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition-all">
                    Ver Minhas Viagens
-                </button>
+                </a>
               </div>
             ) : (
               <form action={(formData) => {
                   passengers.forEach((p, i) => {
-                      formData.append(`passengers[${i}][name]`, p.name);
-                      formData.append(`passengers[${i}][cpf]`, p.cpf);
+                      formData.set(`passengers[${i}][name]`, p.name);
+                      formData.set(`passengers[${i}][cpf]`, p.cpf);
                   });
-                  formData.append('installments', installments.toString());
-                  formData.append('card_last_digits', cardDetails.number.slice(-4));
+                  formData.set('installments', installments.toString());
+                  formData.set('card_last_digits', cardDetails.number.slice(-4));
 
                   startTransition(() => formAction(formData));
               }} className="p-8">
@@ -201,7 +215,7 @@ export default function ReservationForm({ packageId, availability, price }: { pa
                    <div className="bg-slate-100 p-4 rounded-lg">
                         <h3 className="font-bold text-lg mb-2 text-gray-800">Resumo do Pedido</h3>
                         <div className="flex justify-between text-gray-700"><p>Pacote ({numTravelers}x):</p> <p className="font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(baseTotal)}</p></div>
-                        {installments > 3 && <div className="flex justify-between text-sm text-gray-600"><p>Juros (5%):</p> <p className="font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(baseTotal * 0.05)}</p></div>}
+                        {interestRate > 0 && <div className="flex justify-between text-sm text-gray-600"><p>Juros ({(interestRate * 100).toFixed(0)}%):</p> <p className="font-semibold">{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(baseTotal * interestRate)}</p></div>}
                         <div className="flex justify-between text-xl font-bold mt-2 border-t pt-2 text-gray-900"><p>Total:</p> <p>{new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalWithInterest)}</p></div>
                    </div>
 

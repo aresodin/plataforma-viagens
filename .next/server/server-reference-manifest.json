@@ -13,18 +13,11 @@
           "async": false,
           "exportedName": "getPublicPackages",
           "filename": "src/app/packages/actions.ts"
-        },
-        "app/packages/page": {
-          "moduleId": "[project]/.next-internal/server/app/packages/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/packages/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
-          "async": false,
-          "exportedName": "getPublicPackages",
-          "filename": "src/app/packages/actions.ts"
         }
       },
       "layer": {
         "app/home/page": "action-browser",
-        "app/packages/[id]/page": "rsc",
-        "app/packages/page": "action-browser"
+        "app/packages/[id]/page": "rsc"
       },
       "filename": "src/app/packages/actions.ts",
       "exportedName": "getPublicPackages"
