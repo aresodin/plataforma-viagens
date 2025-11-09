@@ -55,3 +55,39 @@
 -   **Bug de Layout do Preço:** Resolvido aplicando `whitespace-nowrap` para garantir que o valor monetário nunca seja quebrado em múltiplas linhas.
 -   **Otimização de Renderização:** Adicionada a classe `will-change-transform` aos cards para dar uma "dica" ao navegador, otimizando a animação de `hover` e prevenindo glitches.
 -   **Limpeza de Código:** Remoção de todos os `console.log`s de depuração após a resolução dos problemas.
+
+## Plano de Ação: Implementação da Reserva e Compra de Pacotes
+
+Nesta fase, o foco é transformar o formulário de reserva existente em um fluxo de compra completo e funcional.
+
+### 1. Análise dos Componentes Atuais
+- Ler e compreender a implementação de `src/app/packages/[id]/page.tsx` e `src/app/packages/[id]/ReservationForm.tsx`.
+
+### 2. Reformulação do Formulário de Reserva (`ReservationForm.tsx`)
+- Converter o formulário em um componente de múltiplos passos (multi-step).
+- **Passo 1: Detalhes dos Passageiros:**
+    - Adicionar um campo para o usuário selecionar a quantidade de viajantes.
+    - Gerar dinamicamente campos para o **nome completo** e **CPF** de cada passageiro com base na quantidade selecionada.
+- **Passo 2: Simulação de Pagamento:**
+    - Apresentar um resumo claro da reserva: pacote, número de passageiros e valor total calculado.
+    - Incluir campos para simular um pagamento, como método de pagamento (Cartão de Crédito, PIX).
+    - Para Cartão de Crédito, adicionar campos para número do cartão, nome no cartão, data de validade e CVV.
+
+### 3. Criação de uma Nova Server Action (`createReservation`)
+- Criar uma nova Server Action robusta no arquivo `src/app/packages/actions.ts`.
+- **Validação de Dados:** Utilizar o Zod para validar rigorosamente todos os campos do novo formulário (passageiros e pagamento).
+- **Transação com a Base de Dados:**
+    1.  Verificar a disponibilidade de vagas no pacote (`viagens`). Se indisponível, retornar um erro.
+    2.  Criar um novo registro na tabela `reservas` com o `usuario_id`, `viagem_id`, `quantidade_passagens`, `valor_total`, e `status` inicial como 'pendente'.
+    3.  Simular o processamento do pagamento, criando um registro na tabela `pagamentos`.
+    4.  Se o pagamento for "aprovado" (simulação), atualizar o `status` da reserva na tabela `reservas` para 'confirmada'.
+    5.  Decrementar o valor correspondente de `disponibilidade` na tabela `viagens`.
+- **Revalidação de Cache:**
+    - Utilizar `revalidatePath('/packages/[id]')` para refletir a nova disponibilidade de vagas na página de detalhes.
+    - Utilizar `revalidatePath('/my-trips')` para que a nova reserva apareça imediatamente no histórico do usuário.
+- **Retorno de Feedback:** Retornar uma mensagem de sucesso ou erro claro para o cliente.
+
+### 4. Atualização da Página "Minhas Viagens" (`my-trips`)
+- Implementar a lógica em `src/app/my-trips/page.tsx`.
+- A página deverá buscar e exibir todas as reservas com status 'confirmada' associadas ao usuário atualmente logado.
+- Para cada reserva, mostrar detalhes relevantes da viagem (`destino`, `data_ida`, etc.), juntando as tabelas `reservas` e `viagens`.

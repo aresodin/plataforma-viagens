@@ -1,0 +1,50 @@
+{
+  "node": {
+    "0086d9609e93a6d0217151bf73dc4347a9a1441bec": {
+      "workers": {
+        "app/packages/[id]/page": {
+          "moduleId": "[project]/.next-internal/server/app/packages/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/packages/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getPublicPackages",
+          "filename": "src/app/packages/actions.ts"
+        }
+      },
+      "layer": {
+        "app/packages/[id]/page": "rsc"
+      },
+      "exportedName": "getPublicPackages",
+      "filename": "src/app/packages/actions.ts"
+    },
+    "4012ad967e15568843b89b63fa5a7d4e1bd6bcc91f": {
+      "workers": {
+        "app/packages/[id]/page": {
+          "moduleId": "[project]/.next-internal/server/app/packages/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/packages/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "getPublicPackageById",
+          "filename": "src/app/packages/actions.ts"
+        }
+      },
+      "layer": {
+        "app/packages/[id]/page": "rsc"
+      },
+      "exportedName": "getPublicPackageById",
+      "filename": "src/app/packages/actions.ts"
+    },
+    "6086eb24ce0ac7b6dafcbd744511fc6cce881004aa": {
+      "workers": {
+        "app/packages/[id]/page": {
+          "moduleId": "[project]/.next-internal/server/app/packages/[id]/page/actions.js { ACTIONS_MODULE0 => \"[project]/src/app/packages/actions.ts [app-rsc] (ecmascript)\" } [app-rsc] (server actions loader, ecmascript)",
+          "async": false,
+          "exportedName": "submitReservation",
+          "filename": "src/app/packages/actions.ts"
+        }
+      },
+      "layer": {
+        "app/packages/[id]/page": "action-browser"
+      },
+      "exportedName": "submitReservation",
+      "filename": "src/app/packages/actions.ts"
+    }
+  },
+  "edge": {}
+}

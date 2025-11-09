@@ -114,7 +114,7 @@ export default async function PackageDetailsPage({ params }: { params: { id: str
                   </p>
                   <p className="text-sm text-gray-600 mb-6">por pessoa, taxas inclusas.</p>
                   
-                  <ReservationForm packageId={pkg.id} availability={pkg.disponibilidade} />
+                  <ReservationForm packageId={pkg.id} availability={pkg.disponibilidade} price={pkg.preco} />
 
                   <p className="text-center mt-4 text-sm font-medium text-green-700">
                     {pkg.disponibilidade > 0 ? `Restam apenas ${pkg.disponibilidade} vagas!` : 'Fique de olho para futuras datas!'}
