@@ -71,13 +71,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 ;
 ;
-// --- Funções de busca de pacotes (Restauradas) ---
-// Helper para criar um cliente Supabase para acesso público (somente leitura)
+// --- Funções de busca de pacotes (Acesso Público) ---
+// Helper para criar um cliente Supabase para acesso público (anônimo).
 const createSupabaseClient = ()=>{
     const supabaseUrl = ("TURBOPACK compile-time value", "https://dbbibutyatofxmxxlqdi.supabase.co");
     const supabaseAnonKey = ("TURBOPACK compile-time value", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRiYmlidXR5YXRvZnhteHhscWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc3Njc0NDEsImV4cCI6MjA3MzM0MzQ0MX0.lSCs25CK8P6JxRpNTVxLUc1koOzuE_wSOtPZw9V9--U");
     if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
     ;
+    // Usa o createClient padrão pois não precisa de contexto de usuário/sessão.
     return (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$supabase$2d$js$2f$dist$2f$module$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$locals$3e$__["createClient"])(supabaseUrl, supabaseAnonKey);
 };
 async function getPublicPackages() {
@@ -95,7 +96,6 @@ async function getPublicPackages() {
         };
     } catch (error) {
         console.error("Catch: Erro ao buscar pacotes públicos:", error);
-        // Retornamos um objeto com a chave `packages` como um array vazio em caso de erro.
         return {
             packages: []
         };
@@ -123,11 +123,12 @@ async function getPublicPackageById(id) {
         };
     }
 }
-// --- Função de Reserva (Corrigida) ---
-// Validação do CPF: remove caracteres não numéricos e verifica se tem 11 dígitos
+// --- Server Action para Reserva (Acesso Autenticado) ---
+// Validação do CPF: usa Zod para remover caracteres não numéricos e garantir que tenha 11 dígitos.
 const cpfSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().transform((cpf)=>cpf.replace(/\D/g, '')).pipe(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(11, {
     message: "CPF deve conter 11 dígitos."
 }));
+// Schema de validação principal com Zod para os dados do formulário de reserva.
 const CreateReservationSchema = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].object({
     packageId: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().uuid({
         message: 'ID do pacote inválido.'
@@ -144,20 +145,23 @@ const CreateReservationSchema = __TURBOPACK__imported__module__$5b$project$5d2f$
         message: 'É necessário adicionar pelo menos um passageiro.'
     }),
     installments: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].coerce.number().int().min(1).max(12),
-    card_last_digits: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(4, "Os dígitos finais do cartão são inválidos.")
+    card_last_digits: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$zod$2f$v4$2f$classic$2f$external$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__$3c$export__$2a$__as__z$3e$__["z"].string().length(4, "Os 4 dígitos finais do cartão são obrigatórios.")
 });
+// Define a taxa de juros com base no número de parcelas.
 const getInterestRate = (installments)=>{
-    if (installments <= 3) return 0;
-    if (installments <= 6) return 0.05; // 5%
-    if (installments <= 9) return 0.07; // 7%
-    return 0.10; // 10%
+    if (installments <= 3) return 0; // Sem juros para até 3x
+    if (installments <= 6) return 0.05; // 5% de juros para 4x a 6x
+    if (installments <= 9) return 0.07; // 7% de juros para 7x a 9x
+    return 0.10; // 10% de juros para 10x a 12x
 };
 async function submitReservation(prevState, formData) {
+    // Cria um cliente Supabase que tem acesso ao contexto da requisição (cookies).
     const cookieStore = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$headers$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["cookies"])();
     const supabase = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f40$supabase$2f$auth$2d$helpers$2d$nextjs$2f$dist$2f$index$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["createRouteHandlerClient"])({
         cookies: ()=>cookieStore
     });
     try {
+        // 1. VERIFICAR AUTENTICAÇÃO: Garante que um usuário está logado.
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             return {
@@ -165,6 +169,7 @@ async function submitReservation(prevState, formData) {
                 success: false
             };
         }
+        // 2. EXTRAIR DADOS DO FORMDATA: Constrói o array de passageiros dinamicamente.
         const passengers = [];
         let i = 0;
         while(formData.get(`passengers[${i}][name]`)){
@@ -181,50 +186,55 @@ async function submitReservation(prevState, formData) {
             installments: formData.get('installments'),
             card_last_digits: formData.get('card_last_digits')
         };
+        // 3. VALIDAR OS DADOS com Zod: Garante a integridade e formato dos dados.
         const validatedFields = CreateReservationSchema.safeParse(dataToValidate);
         if (!validatedFields.success) {
+            // Formata os erros de validação para serem exibidos facilmente na UI.
             const flattenedErrors = {};
             for (const issue of validatedFields.error.issues){
                 flattenedErrors[issue.path.join('.')] = issue.message;
             }
             return {
-                message: 'Erro de validação. Verifique os campos.',
+                message: 'Erro de validação. Verifique os campos em vermelho.',
                 errors: flattenedErrors,
                 success: false
             };
         }
         const { packageId, numTravelers, installments, card_last_digits } = validatedFields.data;
-        const { data: travelPackage, error: packageError } = await supabase.from('viagens').select('preco, disponibilidade').eq('id', packageId).single();
+        // 4. VERIFICAR DISPONIBILIDADE DO PACOTE
+        const { data: travelPackage, error: packageError } = await supabase.from('viagens').select('preco, disponibilidade').eq('id', packageId).single(); // .single() garante que apenas um registro é retornado.
         if (packageError || !travelPackage) {
             return {
-                message: "Pacote de viagem não encontrado.",
+                message: "Pacote de viagem não encontrado ou indisponível.",
                 success: false
             };
         }
         if (travelPackage.disponibilidade < numTravelers) {
             return {
-                message: `Desculpe, restam apenas ${travelPackage.disponibilidade} vagas.`,
+                message: `Desculpe, restam apenas ${travelPackage.disponibilidade} vagas para este destino.`,
                 success: false
             };
         }
+        // 5. CALCULAR VALOR TOTAL COM JUROS
         const baseTotal = travelPackage.preco * numTravelers;
         const interestRate = getInterestRate(installments);
         const finalTotal = baseTotal * (1 + interestRate);
+        // ETAPAS DA TRANSAÇÃO NO BANCO DE DADOS
+        // 6. INSERIR A RESERVA com status inicial 'pendente'
         const { data: reservation, error: reservationError } = await supabase.from('reservas').insert({
             usuario_id: user.id,
             viagem_id: packageId,
             quantidade_passagens: numTravelers,
             valor_total: finalTotal,
-            status: 'pendente',
-            metodo_pagamento: 'Cartão de Crédito'
+            status: 'pendente'
         }).select('id').single();
         if (reservationError || !reservation) {
-            console.error('Reservation Error:', reservationError);
             return {
-                message: 'Falha ao criar a reserva.',
+                message: 'Falha ao iniciar o processo de reserva.',
                 success: false
             };
         }
+        // 7. INSERIR O PAGAMENTO associado à reserva
         const { error: paymentError } = await supabase.from('pagamentos').insert({
             reserva_id: reservation.id,
             valor: finalTotal,
@@ -232,31 +242,30 @@ async function submitReservation(prevState, formData) {
             status: 'aprovado'
         });
         if (paymentError) {
-            console.error('Payment Error:', paymentError);
             return {
                 message: 'Falha ao processar o pagamento.',
                 success: false
             };
         }
+        // 8. ATUALIZAR STATUS DA RESERVA para 'confirmada'
         const { error: updateStatusError } = await supabase.from('reservas').update({
             status: 'confirmada'
         }).eq('id', reservation.id);
         if (updateStatusError) {
-            console.error('Update Status Error:', updateStatusError);
             return {
                 message: 'Falha ao confirmar o status da reserva.',
                 success: false
             };
         }
+        // 9. ATUALIZAR A DISPONIBILIDADE de vagas do pacote de viagem
         const newAvailability = travelPackage.disponibilidade - numTravelers;
-        const { error: updateAvailabilityError } = await supabase.from('viagens').update({
+        await supabase.from('viagens').update({
             disponibilidade: newAvailability
         }).eq('id', packageId);
-        if (updateAvailabilityError) {
-            console.error(`ALERTA CRÍTICO: Falha ao atualizar disponibilidade do pacote ${packageId}. Correção manual necessária.`);
-        }
-        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])(`/packages/${packageId}`);
-        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/my-trips');
+        // 10. REVALIDAR CACHE: Invalida o cache de dados para certas páginas.
+        // Isso força o Next.js a buscar os dados novamente na próxima visita, mostrando informações atualizadas.
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])(`/packages/${packageId}`); // Atualiza a página de detalhes do pacote (mostra novas vagas).
+        (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$cache$2e$js__$5b$app$2d$rsc$5d$__$28$ecmascript$29$__["revalidatePath"])('/my-trips'); // Garante que a nova viagem apareça na lista de "Minhas Viagens".
         return {
             message: `Sua reserva para ${numTravelers} pessoa(s) foi confirmada com sucesso!`,
             success: true

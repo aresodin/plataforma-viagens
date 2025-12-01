@@ -7,21 +7,27 @@ const nextConfig = {
             hostname: 'dbbibutyatofxmxxlqdi.supabase.co',
             port: '',
             pathname: '/storage/v1/object/public/**',
-          },
+         },
+         {
+           protocol: 'https',
+           hostname: 'plus.unsplash.com',
+           port: '',
+           pathname: '/**',
+         },
           {
+           protocol: 'https',
+           hostname: 'images.unsplash.com',
+           port: '',
+           pathname: '/**',
+         },
+         {
             protocol: 'https',
-            hostname: 'plus.unsplash.com',
+            hostname: 'magazine.zarpo.com.br',
             port: '',
             pathname: '/**',
-          },
-           {
-            protocol: 'https',
-            hostname: 'images.unsplash.com',
-            port: '',
-            pathname: '/**',
-          },
-        ],
-      },
+         },
+       ],
+     },
 };
 
 module.exports = nextConfig;
